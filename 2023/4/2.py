@@ -6,10 +6,13 @@ class Card():
     '''
     def __init__(self, info: str):
         m = re.match(r'Card +(\d+): ([\d ]+) \| ([\d ]+)', line)
-        winning = [int(x) for x in m.group(2).split()]
-        mine = [int(x) for x in m.group(3).split()]
-        intersection = list(set(winning) & set(mine))
-        self._matches = len(intersection)
+        if m:
+            winning = [int(x) for x in m.group(2).split()]
+            mine = [int(x) for x in m.group(3).split()]
+            intersection = list(set(winning) & set(mine))
+            self._matches = len(intersection)
+        else:
+            self._matches = 0
         self._count = 1     # Initially we have one of this card
 
     @property
@@ -22,9 +25,9 @@ class Card():
         ''' The number of copies of this card '''
         return self._count
     
-    def add(self):
-        ''' Add another copy of this card to our hand '''
-        self._count += 1
+    def add(self, number):
+        ''' Add <number> copies of this card to our hand '''
+        self._count += number
     
 
 cards: list[Card] = []
@@ -41,11 +44,9 @@ with open('input.txt', 'r') as f:
 # one we're processing, we'll automatically get to
 # them in subsequent iterations.
 for index, card in enumerate(cards):
-    # Iterate through all copies of this card
-    for count in range(1, card.count + 1):
-        # Add cards as per the rules
-        for additional in range(0, card.matches):
-            cards[index + additional + 1].add()
+    # Add cards as per the rules
+    for additional in range(0, card.matches):
+        cards[index + additional + 1].add(card.count)
             
 # Now just total the card counts
 total = sum([x.count for x in cards])
